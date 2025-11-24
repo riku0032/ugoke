@@ -1,4 +1,4 @@
-# -14
+# ugoke!
 lllllllllllllllllllllllllllllllllllllllllllllllllllllIIIIIIllllllliIIIII
 ohhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 何を四天王
