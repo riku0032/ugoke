@@ -1,33 +1,50 @@
-/* 全体のベース */
+/* ベース背景 */
 .main { background-color: #0e1117; }
 
-/* 成功時の派手なフラッシュ */
+/* 画面中央のカウントダウン表示 */
+#countdown-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    pointer-events: none;
+}
+
+#countdown-display {
+    font-size: 15rem;
+    font-weight: 900;
+    color: #00f2fe;
+    text-shadow: 0 0 30px rgba(0, 242, 254, 0.8);
+    transition: transform 0.2s ease;
+}
+
+/* 成功時のフラッシュ演出 */
 @keyframes success-flash {
     0% { background-color: rgba(0, 242, 254, 0); }
-    50% { background-color: rgba(0, 242, 254, 0.5); }
+    50% { background-color: rgba(0, 242, 254, 0.4); }
     100% { background-color: rgba(0, 242, 254, 0); }
 }
-.success-effect { animation: success-flash 0.5s ease-out 2; }
+.success-effect {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 9998; pointer-events: none;
+    animation: success-flash 0.5s ease-out 2;
+}
 
 /* 雨のアニメーション */
 .rain {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 99;
+    pointer-events: none; z-index: 9998;
 }
 .drop {
     position: absolute; background: #3498db; width: 2px; height: 15px;
     opacity: 0.5; animation: fall 0.8s linear infinite;
 }
-@keyframes fall {
-    to { transform: translateY(100vh); }
-}
+@keyframes fall { to { transform: translateY(100vh); } }
 
-/* ゲーム用カード */
-.game-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 2px solid #4facfe;
+/* メインメニューの大きなボタン */
+div.stButton > button {
+    height: 120px;
+    font-size: 1.5rem !important;
     border-radius: 20px;
-    padding: 30px;
-    text-align: center;
 }
