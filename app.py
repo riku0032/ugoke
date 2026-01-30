@@ -76,7 +76,7 @@ if img_source:
                 # 1. 256x256にリサイズ
                 input_img = cv2.resize(img_bgr, (256, 256))
                 # 2. NumPyを使用して確実に int32 型の 1x256x256x3 テンソルを作成
-                input_tensor = np.expand_dims(input_img, axis=0).astype(np.int32)
+                input_tensor = np.expand_dims(input_img, axis=0).astype(np.uint8)
                 
                 # 3. テンソルをセット
                 input_details = movenet.get_input_details()
@@ -127,3 +127,4 @@ if img_source:
 
 st.markdown("---")
 st.caption("Powered by TensorFlow Lite & Streamlit")
+
