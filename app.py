@@ -1,114 +1,129 @@
 import streamlit as st
-from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
 import cv2
 import numpy as np
 import tensorflow as tf
-import os
+from PIL import Image
 
-# ページ基本設定
-st.set_page_config(page_title="Yoga Pose AI", layout="wide")
+# --- 1. ページ設定とリッチなデザイン ---
+st.set_page_config(page_title="Yoga Pose AI Analyzer", layout="centered")
 
-st.title("🧘 AI Pose Classifier")
-st.markdown("MoveNet Thunder + TFLite Classifier によるリアルタイム判定")
+st.markdown("""
+    <style>
+    .main { background-color: #0e1117; color: white; }
+    .stButton>button { 
+        width: 100%; border-radius: 25px; 
+        background: linear-gradient(45deg, #00f2fe, #4facfe); 
+        color: white; font-weight: bold; border: none; padding: 10px;
+        box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+    }
+    .result-card {
+        padding: 25px; border-radius: 15px; 
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 242, 254, 0.5); 
+        text-align: center; margin-top: 20px;
+    }
+    .pose-label { font-size: 0.9rem; color: #00f2fe; text-transform: uppercase; }
+    .pose-name { font-size: 3rem; font-weight: 800; margin: 5px 0; }
+    </style>
+    """, unsafe_allow_html=True)
 
-# --- ファイル存在チェック ---
-required_files = ["movenet_thunder.tflite", "pose_classifier.tflite", "pose_labels.txt"]
-missing_files = [f for f in required_files if not os.path.exists(f)]
-
-if missing_files:
-    st.error(f"以下のファイルが見つかりません: {', '.join(missing_files)}")
-    st.stop()
-
-# --- モデル読み込み (キャッシュ利用) ---
+# --- 2. モデル読み込み（キャッシュ利用） ---
 @st.cache_resource
-def load_resource():
-    # MoveNet
+def load_models():
+    # MoveNet Thunder (int32入力を期待するモデル)
     movenet = tf.lite.Interpreter(model_path="movenet_thunder.tflite")
     movenet.allocate_tensors()
-    
-    # 分類器
+    # 自作分類器
     classifier = tf.lite.Interpreter(model_path="pose_classifier.tflite")
     classifier.allocate_tensors()
-    
-    # ラベル
+    # ラベル読み込み
     with open("pose_labels.txt", "r") as f:
         labels = [line.strip() for line in f.readlines()]
-        
     return movenet, classifier, labels
 
-movenet, classifier, labels = load_resource()
+movenet, classifier, labels = load_models()
 
-# --- 映像解析クラス ---
-class PoseAnalyzer(VideoProcessorBase):
-    def __init__(self):
-        self.movenet = movenet
-        self.classifier = classifier
-        self.labels = labels
+# --- 3. メインUI ---
+st.title("🧘 Yoga Pose AI")
+st.write("カメラで撮影するか、画像をアップロードしてAI判定を開始してください。")
 
-    def recv(self, frame):
-        img = frame.to_ndarray(format="bgr24")
-        h, w, _ = img.shape
+tab1, tab2 = st.tabs(["📸 カメラで撮影", "📁 ファイル選択"])
+img_source = None
 
-        # 1. MoveNet 前処理 (256x256, int32)
-        input_size = 256
-        resized_img = cv2.resize(img, (input_size, input_size))
-        input_tensor = tf.cast(tf.expand_dims(resized_img, axis=0), dtype=tf.int32)
+with tab1:
+    camera_img = st.camera_input("Take a photo")
+    if camera_img:
+        img_source = camera_img
 
-        # 2. キーポイント抽出
-        m_input_details = self.movenet.get_input_details()
-        m_output_details = self.movenet.get_output_details()
-        self.movenet.set_tensor(m_input_details[0]['index'], input_tensor.numpy())
-        self.movenet.invoke()
-        # [1, 1, 17, 3] -> [17, 3] (y, x, score)
-        keypoints = self.movenet.get_tensor(m_output_details[0]['index'])[0, 0, :, :]
+with tab2:
+    uploaded_file = st.file_uploader("画像を選択してください", type=['jpg', 'jpeg', 'png'])
+    if uploaded_file:
+        img_source = uploaded_file
 
-        # 3. ポーズ分類
-        # Classifierの期待値 [1, 51] に変換
-        input_data = keypoints.flatten().astype(np.float32).reshape(1, -1)
-        
-        c_input_details = self.classifier.get_input_details()
-        c_output_details = self.classifier.get_output_details()
-        self.classifier.set_tensor(c_input_details[0]['index'], input_data)
-        self.classifier.invoke()
-        prediction = self.classifier.get_tensor(c_output_details[0]['index'])[0]
-        
-        idx = np.argmax(prediction)
-        score = prediction[idx]
-        pose_name = self.labels[idx]
+# --- 4. 解析実行 ---
+if img_source:
+    # PILで開いてNumPy配列(RGB)に変換
+    img = Image.open(img_source)
+    img_array = np.array(img)
+    # OpenCV形式(BGR)に変換
+    img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
+    h, w, _ = img_bgr.shape
 
-        # 4. 描画処理
-        # スケルトン（点）の描画
-        for i in range(17):
-            ky, kx, ks = keypoints[i]
-            if ks > 0.3:
-                cv2.circle(img, (int(kx * w), int(ky * h)), 6, (0, 255, 0), -1)
+    if st.button("ポーズを分析する"):
+        with st.spinner("AIが解析しています..."):
+            try:
+                # --- MoveNet推論 (ここがエラーの急所) ---
+                # 1. 256x256にリサイズ
+                input_img = cv2.resize(img_bgr, (256, 256))
+                # 2. NumPyを使用して確実に int32 型の 1x256x256x3 テンソルを作成
+                input_tensor = np.expand_dims(input_img, axis=0).astype(np.uint8)
+                
+                # 3. テンソルをセット
+                input_details = movenet.get_input_details()
+                movenet.set_tensor(input_details[0]['index'], input_tensor)
+                
+                # 4. 実行
+                movenet.invoke()
+                
+                # 5. 結果取得 (17個のキーポイント)
+                output_details = movenet.get_output_details()
+                keypoints = movenet.get_tensor(output_details[0]['index'])[0, 0, :, :]
 
-        # 判定結果の表示
-        if score > 0.5: # 信頼度50%以上で表示
-            display_text = f"{pose_name} ({int(score*100)}%)"
-            cv2.putText(img, display_text, (20, 60), 
-                        cv2.FONT_HERSHEY_DUPLEX, 1.2, (255, 255, 255), 3)
-            cv2.putText(img, display_text, (20, 60), 
-                        cv2.FONT_HERSHEY_DUPLEX, 1.2, (0, 165, 255), 1)
+                # --- ポーズ分類推論 ---
+                # キーポイント(y, x, score)をフラットにしてfloat32に変換
+                input_data = keypoints.flatten().astype(np.float32).reshape(1, -1)
+                
+                c_in = classifier.get_input_details()[0]['index']
+                c_out = classifier.get_output_details()[0]['index']
+                classifier.set_tensor(c_in, input_data)
+                classifier.invoke()
+                prediction = classifier.get_tensor(c_out)[0]
+                
+                idx = np.argmax(prediction)
+                conf = prediction[idx]
+                pose_name = labels[idx]
 
-        return frame.from_ndarray(img, format="bgr24")
+                # --- 描画処理 ---
+                # 骨格の点（緑色）を描画
+                for i in range(17):
+                    y, x, s = keypoints[i]
+                    if s > 0.3: # 信頼度30%以上の点のみ描画
+                        cv2.circle(img_bgr, (int(x*w), int(y*h)), 10, (0, 255, 0), -1)
 
-# --- UI レイアウト ---
-col_main, col_info = st.columns([3, 1])
+                # --- 結果表示 ---
+                st.image(cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB), use_container_width=True)
+                
+                st.markdown(f"""
+                    <div class="result-card">
+                        <p class="pose-label">Detected Pose</p>
+                        <h2 class="pose-name">{pose_name}</h2>
+                        <p style="color: #cbd5e0;">Accuracy: {int(conf*100)}%</p>
+                    </div>
+                """, unsafe_allow_html=True)
 
-with col_main:
-    webrtc_streamer(
-        key="pose-classification",
-        video_processor_factory=PoseAnalyzer,
-        rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
-        media_stream_constraints={"video": True, "audio": False},
-    )
+            except Exception as e:
+                st.error(f"解析中にエラーが発生しました: {e}")
+                st.info("画像の形式やモデルのパスが正しいか確認してください。")
 
-with col_info:
-    st.write("### 判定対象")
-    for l in labels:
-        st.write(f"✅ {l}")
-    
-    st.divider()
-    st.write("### 使い方")
-    st.caption("1. カメラを許可\n2. 全身が映る位置へ移動\n3. ポーズをとるとAIが判定します")
+st.markdown("---")
+st.caption("Powered by TensorFlow Lite & Streamlit")
