@@ -1,0 +1,33 @@
+/* 全体のベース */
+.main { background-color: #0e1117; }
+
+/* 成功時の派手なフラッシュ */
+@keyframes success-flash {
+    0% { background-color: rgba(0, 242, 254, 0); }
+    50% { background-color: rgba(0, 242, 254, 0.5); }
+    100% { background-color: rgba(0, 242, 254, 0); }
+}
+.success-effect { animation: success-flash 0.5s ease-out 2; }
+
+/* 雨のアニメーション */
+.rain {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 99;
+}
+.drop {
+    position: absolute; background: #3498db; width: 2px; height: 15px;
+    opacity: 0.5; animation: fall 0.8s linear infinite;
+}
+@keyframes fall {
+    to { transform: translateY(100vh); }
+}
+
+/* ゲーム用カード */
+.game-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 2px solid #4facfe;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+}
