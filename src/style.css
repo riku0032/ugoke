@@ -1,0 +1,45 @@
+/* カウントダウン表示の強制固定 */
+#countdown-display {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 999999 !important;
+    font-size: 15rem !important;
+    font-weight: 900 !important;
+    color: #00f2fe !important;
+    text-shadow: 0 0 40px rgba(0, 242, 254, 0.9) !important;
+    pointer-events: none !important;
+    font-family: 'Arial Black', sans-serif !important;
+}
+
+/* 成功時のフラッシュ */
+.success-effect {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 999998; pointer-events: none;
+    animation: success-flash 0.5s ease-out 2;
+}
+
+@keyframes success-flash {
+    0% { background-color: rgba(0, 242, 254, 0); }
+    50% { background-color: rgba(0, 242, 254, 0.5); }
+    100% { background-color: rgba(0, 242, 254, 0); }
+}
+
+/* 雨の演出 */
+.rain {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 999998;
+}
+.drop {
+    position: absolute; background: #3498db; width: 2px; height: 15px;
+    opacity: 0.5; animation: fall 0.8s linear infinite;
+}
+@keyframes fall { to { transform: translateY(100vh); } }
+
+/* メインメニューのボタン */
+div.stButton > button {
+    height: 120px;
+    font-size: 1.5rem !important;
+    border-radius: 20px;
+}
