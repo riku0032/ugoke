@@ -8,7 +8,7 @@ import os
 import streamlit.components.v1 as components
 
 # --- 1. UIスタイル設定 ---
-st.set_page_config(page_title="AI Yoga Master - SP1.2", layout="centered")
+st.set_page_config(page_title="UGOKE!", layout="centered")
 st.markdown("""
     <style>
     div[data-testid="stCameraInput"] { max-width: 600px; margin: 0 auto; }
@@ -125,12 +125,12 @@ def reset_camera():
 
 # --- 5. 画面遷移 ---
 if st.session_state.mode == "MAIN":
-    st.title("🧘 AI Yoga Master Pro")
+    st.title("🧘 UGOKE! YOGA ver.")
     col1, col2 = st.columns(2)
-    if col1.button("🧘 通常トレーニング", use_container_width=True):
+    if col1.button("🧘 デフォルトモード", use_container_width=True):
         st.session_state.mode = "PRACTICE"
         st.rerun()
-    if col2.button("🎮 ポーズ・チャレンジ", use_container_width=True):
+    if col2.button("🎮 チャレンジモード", use_container_width=True):
         st.session_state.mode = "GAME"
         st.session_state.game_status = "IDLE"
         st.rerun()
