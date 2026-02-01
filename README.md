@@ -31,6 +31,8 @@ Figma : https://www.figma.com/board/QDseLoYFIXYQFhLdDsT8N1/3%E5%B9%B4%E7%94%9F-%
 ・あらかじめ用意したモデル(モデルごとにポーズ名を割り振る)から、ユーザーにポーズをとらせる  
 ・ユーザーのポーズを判定し、お題に沿っていればポイント(ポーズの正確さ、速度など基準を設ける)  
 
+<img width="1265" height="666" alt="image" src="https://github.com/user-attachments/assets/56a4ec55-ca18-44d1-9ad3-253fbc134c00" />
+
 # 本プロジェクトについて
 本プロジェクト始動時、推論モデルの学習データを自作の予定であったが、開発が難航したため、  
 kaggleにて公開されているヨガのポーズのデータセット(https://www.kaggle.com/datasets/niharika41298/yoga-poses-dataset)  
