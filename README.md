@@ -3,8 +3,11 @@
 
 # リンク
 公開Web: URL:https://settings-mtgysucqxyuqx2i6dxsq7s.streamlit.app/  
+  
 Figma : https://www.figma.com/board/QDseLoYFIXYQFhLdDsT8N1/3%E5%B9%B4%E7%94%9F-%E3%83%81%E3%83%BC%E3%83%A014-%E5%A4%A7%E7%9F%B3%E3%80%81%E5%B1%B1%EF%A8%91%E3%80%81%E5%B7%9D%E9%87%8E-%E6%9C%88%E6%9B%9C5-6%E9%99%90%E5%BE%8C%E6%9C%9F?node-id=0-1&p=f&t=9A8NM1elJUJnEx7V-0  
+  
 画面構成図 : https://www.figma.com/design/88LxnHCYsUvbIeI4wAw1HV/%E7%94%BB%E9%9D%A2%E6%A7%8B%E6%88%90%E5%9B%B3?node-id=0-1&p=f&t=fc9ev07Wk65DQn7F-0  
+  
 
 
 # 概要
