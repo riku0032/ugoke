@@ -27,9 +27,9 @@ Figma : https://www.figma.com/board/QDseLoYFIXYQFhLdDsT8N1/3%E5%B9%B4%E7%94%9F-%
 以上2点から、最新技術を用いた、ノンバーバルコミュニケーション実践ツールの開発に着手した  
 
 # 主な機能
-・tensorflow.jsの骨格検出(予定)を用いユーザーの現在の動きを判別  
+・骨格検出を用いユーザーの現在の動きを判別  
 ・あらかじめ用意したモデル(モデルごとにポーズ名を割り振る)から、ユーザーにポーズをとらせる  
-・ユーザーのポーズを判定し、お題に沿っていればポイント(ポーズの正確さ、速度など基準を設ける)  
+ 
 
 <img width="1265" height="666" alt="image" src="https://github.com/user-attachments/assets/56a4ec55-ca18-44d1-9ad3-253fbc134c00" />
 
